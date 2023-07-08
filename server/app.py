@@ -7,7 +7,7 @@ app: Flask = Flask(__name__)
 
 @app.get('/')
 def index():
-    return os.getenv('MONGO_URL')
+    return os.getenv('MONGO_URL') or "Hi"
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -4,16 +4,9 @@ networks:
   bunnyshell:
     driver: bridge
 
-x-common-variables: &common-variables
-  MYSQL_DATABASE: bunnyshell
-  MYSQL_ROOT_PASSWORD: bunnyshell
-
 services:
   app:
     build:
-      args:
-        user: ritwik
-        uid: 1000
       context: ./server
       dockerfile: Dockerfile
     image: bunnyshell-server
@@ -24,7 +17,5 @@ services:
     working_dir: /var/www
     volumes:
       - ./server:/var/www/
-      - /var/www/node_modules
-      - /var/www/vendor
     networks:
       - bunnyshell
