@@ -12,4 +12,4 @@ RUN find . -type d -name __pycache__ -exec rm -r {} \+
 
 RUN pip3 install -r requirements.txt
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["python3", "app.py"]
