@@ -14,9 +14,9 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
-    working_dir: /var/www
+    working_dir: /src/app
     volumes:
-      - ./server:/var/www/
+      - ./server:/src/app/
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_DB=bunny_suns
