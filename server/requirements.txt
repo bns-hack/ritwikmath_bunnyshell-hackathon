@@ -1,3 +1,14 @@
-Flask
+flask
+SQLAlchemy
+psycopg2-binary
+cryptography
+pymysql
+pytest
 flask-cors
+stripe
 python-dotenv
+pylint
+gunicorn
+stripe
+pyjwt
+jsonschema

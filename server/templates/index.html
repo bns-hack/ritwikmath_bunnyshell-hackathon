@@ -1,20 +1,50 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<form id="subscription-form" method="POST" action="#">
+<form id="plan-form" method="POST">
     <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Email address</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        <label for="currency" class="form-label">Currency</label>
+        <select class="form-select" id="currency" name="currency" required>
+            <option value="usd">USD</option>
+            <option value="eur">EUR</option>
+            <option value="gbp">GBP</option>
+            <!-- Add more currency options if needed -->
+        </select>
     </div>
     <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1">
+        <label for="name" class="form-label">Plan Name</label>
+        <input type="text" class="form-control" id="name" name="name" required>
     </div>
-    <div class="mb-3 form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Amount</label>
+        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Payment Gateway</label>
+        <div>
+            <div class="mb-3 form-check form-check-inline">
+                <input type="checkbox" class="form-check-input" id="stripeCheckbox" name="paymentMethod" value="stripe">
+                <label class="form-check-label" for="stripeCheckbox">Stripe</label>
+            </div>
+            <div class="mb-3 form-check form-check-inline">
+                <input type="checkbox" class="form-check-input" id="paypalCheckbox" name="paymentMethod" value="paypal">
+                <label class="form-check-label" for="paypalCheckbox">PayPal</label>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Plan</button>
 </form>
+<table class="table mt-5">
+    <thead>
+        <tr>
+            <th>Plan Name</th>
+            <th>Amount</th>
+            <th>Currency</th>
+            <th>Gateway</th>
+        </tr>
+    </thead>
+    <tbody id="plan-table-body">
+        <!-- Plan data will be dynamically added here -->
+    </tbody>
+</table>
 {% endblock %}

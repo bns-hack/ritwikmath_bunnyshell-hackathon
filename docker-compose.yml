@@ -17,5 +17,30 @@ services:
     working_dir: /var/www
     volumes:
       - ./server:/var/www/
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=bunny_suns
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=need-to-replace
     networks:
       - bunnyshell
+    depends_on:
+      - db
+  
+  db:
+    container_name: bunnyshell-db
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=bunny_suns
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=need-to-replace
+    expose:
+      - 5432
+    networks:
+      - bunnyshell
+volumes:
+  db-data:
