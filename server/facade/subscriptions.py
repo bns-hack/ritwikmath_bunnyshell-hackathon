@@ -25,7 +25,8 @@ class SubscriptionFacade:
                 'customer': customer['gateway_cust_id'],
                 'items': [
                     {"price": plan['gateway_price_id']},
-                ]
+                ],
+                'default_payment_method': arg.get('payment_method')
             })
             amount = 0
             for item in data['items']['data']:
@@ -59,3 +60,15 @@ class SubscriptionFacade:
         })
         customer = customer_model.insert_one(self.session, {**arg, 'gateway_cust_id': data.get('id')})
         return customer
+    
+    def cancelSubscription(self, arg):
+        subs = SubscriptionsModel().find_one(self.session, {'id': arg['sub_id']})
+        gateway = PaymentgatewayFactory.create_payment_gateway(subs.get('gateway'))
+        data = gateway.cancelSubscription(subs['gateway_sub_id'])
+        updated_subs = SubscriptionsModel().update(self.session, {'id': arg['sub_id']}, {
+            'cancel_at': data['cancel_at'] and datetime.fromtimestamp(data['cancel_at']) or data['cancel_at'],
+            'canceled_at': data['canceled_at'] and datetime.fromtimestamp(data['canceled_at']) or data['canceled_at'],
+            'cancel_at_period_end': data['cancel_at_period_end'],
+            'status': 'ending'
+        })
+        return updated_subs

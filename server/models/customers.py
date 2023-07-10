@@ -9,7 +9,7 @@ class CustomersModel():
     def find_one(self, session, filter):
         statement = select(self.Customer).filter_by(**filter)
         user_obj = session.scalars(statement).first()
-        return user_obj.__dict__
+        return user_obj and user_obj.__dict__ or None
 
     def insert_one(self, session, data):
         customer = self.Customer(**{key: value for key, value in data.items() if key in self.columns})
@@ -17,7 +17,7 @@ class CustomersModel():
         user_obj =  session.scalars(
             select(self.Customer).filter_by(email=customer.email, gateway=customer.gateway)
         ).first()
-        return user_obj.__dict__
+        return user_obj and user_obj.__dict__ or None
     
     def update(self, session, filter, data):
         statement = (
@@ -30,12 +30,23 @@ class CustomersModel():
             .returning(self.Customer)
         )
         updated_customer = session.scalars(statement).first()
-        print(updated_customer, end="\n\n\n\n")
         
         if updated_customer:
             return updated_customer.__dict__
         
         return None
+    
+    def delete(self, session, filter):
+        data_to_delete = session.query(self.Customer).filter_by(**filter).all()
+
+        if data_to_delete:
+            # Delete the data
+            for data in data_to_delete:
+                session.delete(data)
+            
+            return True
+        
+        return True
 
     class Customer(Base):
         __tablename__ = 'customers'

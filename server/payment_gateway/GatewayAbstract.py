@@ -18,6 +18,10 @@ class GatewayAbstract(ABC):
         pass
 
     @abstractmethod
+    def deleteCustomer(self, cust_id):
+        pass
+
+    @abstractmethod
     def getCards(self, cust_id):
         pass
 
@@ -27,4 +31,12 @@ class GatewayAbstract(ABC):
 
     @abstractmethod
     def createProduct(self, data):
+        pass
+
+    @abstractmethod
+    def createSetupIntent(self, cust_id):
+        pass
+
+    @abstractmethod
+    def cancelSubscription(self, sub_id):
         pass

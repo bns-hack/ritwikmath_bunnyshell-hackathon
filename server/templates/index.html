@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<form id="plan-form" method="POST">
+<form id="plan-form">
     <div class="mb-3">
         <label for="currency" class="form-label">Currency</label>
         <select class="form-select" id="currency" name="currency" required>
@@ -23,12 +23,12 @@
         <label for="amount" class="form-label">Payment Gateway</label>
         <div>
             <div class="mb-3 form-check form-check-inline">
-                <input type="checkbox" class="form-check-input" id="stripeCheckbox" name="paymentMethod" value="stripe">
+                <input type="checkbox" class="form-check-input" id="stripeCheckbox" name="paymentMethod" value="stripe" checked>
                 <label class="form-check-label" for="stripeCheckbox">Stripe</label>
             </div>
             <div class="mb-3 form-check form-check-inline">
-                <input type="checkbox" class="form-check-input" id="paypalCheckbox" name="paymentMethod" value="paypal">
-                <label class="form-check-label" for="paypalCheckbox">PayPal</label>
+                <input type="checkbox" class="form-check-input" id="paypalCheckbox" name="paymentMethod" value="paypal" disabled>
+                <label class="form-check-label" for="paypalCheckbox">PayPal <small class="text-warning">(Coming soon)</small></label>
             </div>
         </div>
     </div>

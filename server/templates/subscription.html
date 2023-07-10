@@ -1,0 +1,97 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="card" id="customer-detail">
+    <div class="card-body">
+        <h5 class="card-title">Customer Details</h5>
+        <ul class="list-group">
+            <li class="list-group-item">
+                <span class="fw-bold">Name:</span>
+                <span id="customer-name"></span>
+            </li>
+            <li class="list-group-item">
+                <span class="fw-bold">Email:</span>
+                <span id="customer-email"></span>
+            </li>
+            <li class="list-group-item">
+                <span class="fw-bold">Stripe Customer ID:</span>
+                <span id="customer-id"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="customer-form" style="display: none;">
+    <h3 class="mb-3">You have to register as a gateway customer first</h3>
+    <form id="customer-details-form">
+        <div class="mb-3">
+            <label for="customer-name-input" class="form-label">Name</label>
+            <input type="text" class="form-control" id="customer-name-input" name="customerName" required>
+        </div>
+        <div class="mb-3">
+            <label for="customer-country-input" class="form-label">Country</label>
+            <select class="form-select" id="customer-country-input" name="customerCountry" required>
+                <option value="IN">India</option>
+                <option value="AU">Australia</option>
+                <option value="US">United States</option>
+                <!-- Add more options for different countries as needed -->
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Payment Gateway</label>
+            <div>
+                <div class="mb-3 form-check form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="stripeCheckbox" name="paymentMethod"
+                        value="stripe" checked>
+                    <label class="form-check-label" for="stripeCheckbox">Stripe</label>
+                </div>
+                <div class="mb-3 form-check form-check-inline">
+                    <input type="checkbox" class="form-check-input" id="paypalCheckbox" name="paymentMethod"
+                        value="paypal" disabled>
+                    <label class="form-check-label" for="paypalCheckbox">PayPal <small class="text-warning">(Coming
+                            soon)</small></label>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Customer</button>
+    </form>
+</div>
+<div class="mt-5" id="subscription-list" style="display: none;">
+    <h5>Subscription List</h5>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Plan Name</th>
+                <th>Amount</th>
+                <th>Currency</th>
+                <th>Gateway</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="subscription-table-body">
+            <!-- Plan data will be dynamically added here -->
+        </tbody>
+    </table>
+</div>
+<form id="subscription-form" class="mt-5"  style="display: none;">
+    <h5>Create a Subscription</h5>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Select</th>
+                <th>Plan Name</th>
+                <th>Amount</th>
+                <th>Currency</th>
+                <th>Gateway</th>
+            </tr>
+        </thead>
+        <tbody id="plan-selection-table-body">
+            <!-- Plan data will be dynamically added here -->
+        </tbody>
+    </table>
+    <div class="my-3">
+        <h5>Pay with new card</h5>
+        <div id="card-element" class="form-control"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Create Subscription</button>
+</form>
+{% endblock %}

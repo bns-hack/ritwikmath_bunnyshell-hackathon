@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, DECIMAL, DateTime, Boolean, ForeignKey, select
+from sqlalchemy import Table, Column, Integer, String, DECIMAL, DateTime, Boolean, ForeignKey, select, update
 from databases.meta import Base
 
 class SubscriptionsModel():
@@ -24,6 +24,34 @@ class SubscriptionsModel():
             select(self.Subscription).filter_by(customer_id=subscription.customer_id, plan_id=subscription.plan_id)
         ).first()
         return subscription_obj.__dict__
+    
+    def delete(self, session, filter):
+        data_to_delete = session.query(self.Subscription).filter_by(**filter).all()
+
+        if data_to_delete:
+            # Delete the data
+            for data in data_to_delete:
+                session.delete(data)
+            
+            return True
+        
+        return True
+
+    def update(self, session, filter, data):
+        statement = (
+            update(self.Subscription)
+            .where(*[
+                self.Subscription.id == filter['id']
+            ])
+            .values(**data)
+            .returning(self.Subscription)
+        )
+        updated_customer = session.scalars(statement).first()
+        
+        if updated_customer:
+            return updated_customer.__dict__
+        
+        return None
 
     class Subscription(Base):
         __tablename__ = 'subscriptions'
