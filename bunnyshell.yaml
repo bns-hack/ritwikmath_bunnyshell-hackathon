@@ -1,0 +1,54 @@
+kind: Environment
+name: 'Bunnyshell Hackathon'
+type: primary
+urlHandle: qa4ihy
+components:
+    -
+        kind: Application
+        name: app
+        gitRepo: 'https://github.com/ritwikmath/bunnyshell-hackathon.git'
+        gitBranch: main
+        gitApplicationPath: server
+        dockerCompose:
+            build:
+                context: ./server
+                dockerfile: Dockerfile
+            environment:
+                JWT_SECRET: qetyqteuqhhq@@@@%3guqrfq341635141947184145ghqjgwgfwhfwjfjkshwhf@@@hhwjkfhf
+                POSTGRES_DB: bunny_subs
+                POSTGRES_HOST: db
+                POSTGRES_PASSWORD: secret_password
+                POSTGRES_USER: bunnyshell
+                STRIPE_API_KEY: sk_test_51NRqEbBNDdJLcRKePt76xUJfWNrEVcOndMsRSrcC48cYYwRHqRueWB5qA2ZDs4jNREqmEHz0EAsHx20uU8b1mHrC00CvzNzibd
+            ports:
+                - '5000:5000'
+            restart: unless-stopped
+            working_dir: /src/app
+        hosts:
+            -
+                hostname: 'app-{{ env.base_domain }}'
+                path: /
+                servicePort: 5000
+    -
+        kind: Database
+        name: db
+        dockerCompose:
+            environment:
+                POSTGRES_DB: bunny_subs
+                POSTGRES_PASSWORD: secret_password
+                POSTGRES_USER: bunnyshell
+            image: postgres
+            restart: always
+            user: postgres
+            ports:
+                - '5432:5432'
+        volumes:
+            -
+                name: db-data
+                mount: /var/lib/postgresql/data
+                subPath: ''
+volumes:
+    -
+        name: db-data
+        size: 1Gi
+        type: disk
