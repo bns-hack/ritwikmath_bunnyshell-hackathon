@@ -192,59 +192,61 @@ function populateCustomer() {
             console.error('Error:', error);
         });
 }
+let customer_detail = document.querySelector('#customer-details-form')
 
-document.querySelector('#customer-details-form').addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent the form from submitting normally
+if (customer_detail)
+    customer_detail.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent the form from submitting normally
 
-    var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!access_token) return;
+        var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        if (!access_token) return;
 
-    // Get the form input values
-    var name = document.getElementById('customer-name-input').value;
-    var country = document.getElementById('customer-country-input').value;
-    var gateway = document.querySelector('input[name="paymentMethod"]:checked').value;
+        // Get the form input values
+        var name = document.getElementById('customer-name-input').value;
+        var country = document.getElementById('customer-country-input').value;
+        var gateway = document.querySelector('input[name="paymentMethod"]:checked').value;
 
-    // Create an object with the data
-    var data = {
-        name: name,
-        country: country,
-        gateway: gateway
-    };
+        // Create an object with the data
+        var data = {
+            name: name,
+            country: country,
+            gateway: gateway
+        };
 
-    // Send the POST request
-    fetch('api/customers', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
-        },
-        body: JSON.stringify(data)
-    })
-    .then(function (response) {
-        if (response.ok) {
-            // Request successful, do something with the response
-            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            var successMessage = document.getElementById('successMessage');
-            successMessage.textContent = "Customer saved successfully";
-            successModal.show();
-            populateCustomer()
-        } else {
-            // Request failed, handle the error
-            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-            var errorMessage = document.getElementById('errorMessage');
-            response.text().then(function (text) {
-                if (response.status === 400)
-                    errorMessage.textContent = JSON.parse(text).error;
-                else
-                    errorMessage.textContent = "Plan creation failed";
-                errorModal.show();
-            });
-        }
-    })
-    .catch(function (error) {
-        console.error('Error:', error);
+        // Send the POST request
+        fetch('api/customers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access_token}`
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function (response) {
+            if (response.ok) {
+                // Request successful, do something with the response
+                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                var successMessage = document.getElementById('successMessage');
+                successMessage.textContent = "Customer saved successfully";
+                successModal.show();
+                populateCustomer()
+            } else {
+                // Request failed, handle the error
+                var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                var errorMessage = document.getElementById('errorMessage');
+                response.text().then(function (text) {
+                    if (response.status === 400)
+                        errorMessage.textContent = JSON.parse(text).error;
+                    else
+                        errorMessage.textContent = "Plan creation failed";
+                    errorModal.show();
+                });
+            }
+        })
+        .catch(function (error) {
+            console.error('Error:', error);
+        });
     });
-});
 
 
 const subscription = document.querySelector('#subscription-table-body')
