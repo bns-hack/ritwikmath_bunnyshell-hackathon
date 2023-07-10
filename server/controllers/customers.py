@@ -6,10 +6,31 @@ from facade.customers import CustomerFacade
 from payment_gateway.PaymentGatewayFactory import PaymentgatewayFactory
 import json
 import jsonschema
+import jwt
+import os
 
 class Customertroller:
     def __init__(self) -> None:
         self.__model = CustomersModel()
+
+    def login(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+                },
+            },
+            "required": ["email"]
+        }
+        try:
+            jsonschema.validate(request.json, schema)
+            print(request.json)
+        except jsonschema.exceptions.ValidationError as e:
+            return json.dumps({'error': e.message}), 400
+        token = jwt.encode(request.json, os.getenv('JWT_SECRET'), algorithm='HS256')
+        return json.loads(json.dumps({'message': 'Customer delete successful', 'data': {'token': token}}, default=str))
 
     def me(self):
         with Postgres().session.begin() as session:
@@ -37,12 +58,12 @@ class Customertroller:
             request.json['email'] = request.environ['loggedin_user'].get('email')
             data = CustomerFacade(session).createCustomer(request.json)
             return json.loads(json.dumps({'message': 'Customer Created', 'data': data}, default=str))
-        
+
     def destroy(self):
         with Postgres().session.begin() as session:
             data = CustomerFacade(session).deleteCustomer({'email': request.environ['loggedin_user'].get('email')})
             return json.loads(json.dumps({'message': 'Customer delete successful', 'data': data}, default=str))
-    
+
     def setup_intent(self):
         with Postgres().session.begin() as session:
             data = CustomersModel().find_one(session, {

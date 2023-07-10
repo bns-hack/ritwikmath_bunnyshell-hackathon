@@ -1,7 +1,32 @@
-var stripe = Stripe('pk_test_51NRqEbBNDdJLcRKeDPg3WpT4Kkskd9m85v5Pz2fLh5RkyZa6WxUN8ojAo64uwN03A7SKMNBzqp3JVVQkl4uIzX3R00zJD2OX13');
-
+let stripe = Stripe('pk_test_51NRqEbBNDdJLcRKeDPg3WpT4Kkskd9m85v5Pz2fLh5RkyZa6WxUN8ojAo64uwN03A7SKMNBzqp3JVVQkl4uIzX3R00zJD2OX13');
 let setup_intent = null;
 let customer_data = null;
+
+window.addEventListener('load', function() {
+    var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    // Check if cookies have an access_token
+    if (!access_token) {
+        const email = this.prompt('Enter your email address')
+        // Make an API call to fetch the token
+        fetch('auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({'email': email})
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Store the token in cookies
+            const token = `${data.data.token}`
+            this.document.cookie = `access_token = ${token}`
+            this.location.reload()
+        })
+        .catch(error => {
+            console.error('Error fetching token:', error);
+        });
+    }
+});
 
 const plan_form = document.querySelector('#plan-form')
 
@@ -39,6 +64,7 @@ if (plan_form)
 
         // Check if access_token is available in cookies
         var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        if (!access_token) return;
 
         // Send the POST request with the access_token as a bearer token
         fetch('api/plans', {
@@ -84,6 +110,7 @@ if (plan_table) {
 
 function populateTbale() {
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
 
     // Send the GET request with the access_token as a bearer token
     fetch('api/plans', {
@@ -129,6 +156,7 @@ if (customer) {
 
 function populateCustomer() {
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
 
     // Fetch customer data from the API
     fetch('api/me', {
@@ -146,7 +174,7 @@ function populateCustomer() {
             }
         })
         .then(function (data) {
-            if (data.data === null) {
+            if (data.data == null) {
                 // Customer data is null, show the customer form instead of the card
                 document.getElementById('customer-form').style.display = 'block';
                 document.getElementById('customer-detail').style.display = 'none';
@@ -169,6 +197,7 @@ document.querySelector('#customer-details-form').addEventListener('submit', func
     event.preventDefault(); // Prevent the form from submitting normally
 
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
 
     // Get the form input values
     var name = document.getElementById('customer-name-input').value;
@@ -225,8 +254,9 @@ if (subscription) {
 }
 
 function populateSubscriptionTable() {
-    if (document.getElementById('customer-detail').style.display == 'none') return;
+    if (document.getElementById('customer-detail').style.display == 'none' || document.getElementById('customer-detail').style.display == '') return;
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
 
     // Fetch customer data from the API
     fetch('api/subscriptions', {
@@ -244,7 +274,7 @@ function populateSubscriptionTable() {
         }
     })
     .then(function (data) {
-        if (data.data.length < 1) {
+        if (!data.data || data.data.length < 1) {
             document.getElementById('subscription-list').style.display = 'none';
             document.getElementById('subscription-form').style.display = 'block';
             populatePlansSelectionTbale()
@@ -260,6 +290,7 @@ function populateSubscriptionTable() {
             } else {
                 document.getElementById('subscription-form').style.display = 'none';
             }
+
             // Clear existing table rows
             subscriptionTableBody.innerHTML = '';
 
@@ -270,8 +301,8 @@ function populateSubscriptionTable() {
                     '<td>' + subscription.amount + '</td>' +
                     '<td>' + subscription.currency + '</td>' +
                     '<td>' + subscription.gateway + '</td>' +
-                    '<td>' + 
-                    `${subscription.status == 'active' ? '<button type="button" class="btn btn-danger btn-sm" onclick="cancelSubscription(' + subscription.id + ')">Cancel</button>': `Ending on ${subscription.cancel_at}`}` + 
+                    '<td>' +
+                    `${subscription.status == 'active' ? '<button type="button" class="btn btn-danger btn-sm" onclick="cancelSubscription(' + subscription.id + ')">Cancel</button>': `Ending on ${subscription.cancel_at}`}` +
                     '</td>';
                     subscriptionTableBody.appendChild(row);
             });
@@ -284,6 +315,7 @@ function populateSubscriptionTable() {
 
 function populatePlansSelectionTbale() {
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
 
     // Send the GET request with the access_token as a bearer token
     fetch('api/plans', {
@@ -324,6 +356,8 @@ function populatePlansSelectionTbale() {
 
 async function setSetupIntent() {
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
+    // document.querySelector('#card-element').inn
 
     // Send the GET request with the access_token as a bearer token
     response  = await fetch('api/customers/setup-intent', {
@@ -341,6 +375,7 @@ async function setSetupIntent() {
     }
     if (data.data != null)
         setup_intent = data.data
+
     var elements = stripe.elements({
         clientSecret: setup_intent.client_secret,
     });
@@ -349,91 +384,103 @@ async function setSetupIntent() {
 
     cardElement.mount('#card-element');
 
-    const subscription_form = document.querySelector('#subscription-form')
+    document.querySelector('#subscription-form').addEventListener('submit', function (event) {
+        event.preventDefault()
+        if (document.querySelector('#create-subs-btn').disabled) return;
+        document.querySelector('#create-subs-btn').disabled = true;
 
-    if (subscription_form)
-        subscription_form.addEventListener('submit', function (event) {
-            event.preventDefault()
+        var subscriptionRadios = document.querySelectorAll('input[name="subscription"]');
+        var plan_id = '';
+        var selectedGateway = '';
 
-            var subscriptionRadios = document.querySelectorAll('input[name="subscription"]');
-            var plan_id = '';
-            var selectedGateway = '';
-
-            subscriptionRadios.forEach(function(radio) {
-                if (radio.checked) {
-                    plan_id = radio.value;
-                    var row = radio.closest('tr');
-                    var gatewayCell = row.querySelector('td:nth-child(5)');
-                    selectedGateway = gatewayCell.textContent;
-                }
-            });
-
-            if (plan_id == '' || plan_id == null) {
-                var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                var errorMessage = document.getElementById('errorMessage');
-                errorMessage.textContent = "Select a plan";
-                errorModal.show();
-                return
+        subscriptionRadios.forEach(function(radio) {
+            if (radio.checked) {
+                plan_id = radio.value;
+                var row = radio.closest('tr');
+                var gatewayCell = row.querySelector('td:nth-child(5)');
+                selectedGateway = gatewayCell.textContent;
             }
-            stripe
-                .confirmCardSetup(setup_intent.client_secret, {
-                    payment_method: {
-                        card: cardElement,
-                        billing_details: {
-                            name: 'Jenny Rosen',
-                        },
-                    },
-                })
-                .then(function(result) {
-                    // Handle result.error or result.setupIntent
-                    var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-                
-                    // Create an object with the data
-                    var data = {
-                        plan_id: plan_id,
-                        gateway: selectedGateway,
-                        payment_method: result.setupIntent.payment_method
-                    };
+        });
 
-                    // Send the POST request b
-                    fetch('api/subscriptions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${access_token}`
-                        },
-                        body: JSON.stringify(data)
-                    })
-                        .then(function (response) {
-                            if (response.ok) {
-                                // Request successful, do something with the response
-                                var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                                var successMessage = document.getElementById('successMessage');
-                                successMessage.textContent = "Subscription created successfully";
-                                successModal.show();
-                                populateCustomer()
-                            } else {
-                                // Request failed, handle the error
-                                var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                                var errorMessage = document.getElementById('errorMessage');
-                                response.text().then(function (text) {
-                                    if (response.status === 400)
-                                        errorMessage.textContent = JSON.parse(text).error;
-                                    else
-                                        errorMessage.textContent = "Subscription creation failed";
-                                    errorModal.show();
-                                });
-                            }
-                        })
-                        .catch(function (error) {
-                            console.error('Error:', error);
+        if (plan_id == '' || plan_id == null) {
+            setTimeout(() => {
+                document.querySelector('#create-subs-btn').disabled = false;
+            }, 10);
+            var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            var errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = "Select a plan";
+            errorModal.show();
+            return
+        }
+        stripe
+            .confirmCardSetup(setup_intent.client_secret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: 'Test User',
+                    },
+                },
+            })
+            .then(function(result) {
+                cardElement.unmount();
+                // Handle result.error or result.setupIntent
+                var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+                if (!access_token) return;
+
+                // Create an object with the data
+                var data = {
+                    plan_id: plan_id,
+                    gateway: selectedGateway,
+                    payment_method: result.setupIntent.payment_method
+                };
+
+                // Send the POST request b
+                fetch('api/subscriptions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access_token}`
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(function (response) {
+                    if (response.ok) {
+                        // Request successful, do something with the response
+                        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        var successMessage = document.getElementById('successMessage');
+                        successMessage.textContent = "Subscription created successfully";
+                        successModal.show();
+                        populateCustomer()
+                    } else {
+                        // Request failed, handle the error
+                        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                        var errorMessage = document.getElementById('errorMessage');
+                        response.text().then(function (text) {
+                            if (response.status === 400)
+                                errorMessage.textContent = JSON.parse(text).error;
+                            else
+                                errorMessage.textContent = "Subscription creation failed";
+                            errorModal.show();
                         });
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
                 });
+                document.querySelector('#create-subs-btn').disabled = false;
+            })
+            .catch(function (error) {
+                setTimeout(() => {
+                    document.querySelector('#create-subs-btn').disabled = false;
+                }, 10);
+                console.log(error)
+            });
         })
 }
 
 function cancelSubscription(id) {
     var access_token = document.cookie.replace(/(?:(?:^|.*;\s*)access_token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!access_token) return;
 
     // Send the POST request b
     fetch(`api/subscriptions/${id}`, {
@@ -448,10 +495,11 @@ function cancelSubscription(id) {
                 // Request successful, do something with the response
                 var successModal = new bootstrap.Modal(document.getElementById('successModal'));
                 var successMessage = document.getElementById('successMessage');
-                successMessage.textContent = "Subscription created successfully";
+                successMessage.textContent = "Subscription cancelled successfully";
                 successModal.show();
-                populateCustomer()
-                populateSubscriptionTable()
+                setTimeout(() => {
+                    location.reload()
+                }, 1000);
             } else {
                 // Request failed, handle the error
                 var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
@@ -469,3 +517,9 @@ function cancelSubscription(id) {
             console.error('Error:', error);
         });
 }
+
+
+document.querySelector('#logout-link').addEventListener('click', function (event) {
+    document.cookie = "access_token= ; expires = Thu, 01 Jan 1970 00:00:00 GMT"
+    location.reload()
+})
