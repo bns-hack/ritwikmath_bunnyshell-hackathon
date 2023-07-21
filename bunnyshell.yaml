@@ -6,7 +6,7 @@ components:
     -
         kind: Application
         name: app
-        gitRepo: 'https://github.com/ritwikmath/bunnyshell-hackathon.git'
+        gitRepo: 'https://github.com/bns-hack/ritwikmath_bunnyshell-hackathon.git'
         gitBranch: main
         gitApplicationPath: server
         dockerCompose:
